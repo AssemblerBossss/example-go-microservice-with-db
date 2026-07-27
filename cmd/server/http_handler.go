@@ -1,10 +1,12 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/AssemblerBossss/example-go-microservice-with-db/internal/domains"
 	"github.com/AssemblerBossss/example-go-microservice-with-db/internal/infra"
+	"github.com/AssemblerBossss/example-go-microservice-with-db/internal/infra/sqlite_clock"
 	"github.com/AssemblerBossss/example-go-microservice-with-db/internal/protocol/httpapi"
 )
 
@@ -12,9 +14,15 @@ func buildHttpHandler() http.Handler {
 	idGen := infra.UUIDGenerator{}
 	mux := http.NewServeMux()
 
-	clock := infra.SystemClock{}
-	dfSystemClockService := domains.NewDateTimeService(clock)
+	//clock := infra.SystemClock{}
+	//dfSystemClockService := domains.NewDateTimeService(clock)
 
+	db, err := sqlite_clock.Open("app.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	sqliteClock := sqlite_clock.NewSQLiteClock(db)
+	dfSystemClockService := domains.NewDateTimeService(sqliteClock)
 	mux.Handle("GET /", httpapi.CreateDateTimeHandler(dfSystemClockService))
 
 	var handler http.Handler = mux
