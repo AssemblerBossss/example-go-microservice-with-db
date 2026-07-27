@@ -8,14 +8,14 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func open(path string) (*sql.DB, error) {
+func Open(path string) (*sql.DB, error) {
 	absolutePath, err := filepath.Abs(path)
 	if err != nil {
 		return nil, err
 	}
 
 	dsn := "file:" + url.PathEscape(absolutePath) + "?cache=shared"
-	db, err := sql.Open("sqlite3", dsn)
+	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, err
 	}
